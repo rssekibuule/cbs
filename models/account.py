@@ -87,7 +87,7 @@ class Account(models.Model):
         ('account_number_uniq', 'unique (account_number, company_id)', 'Account Number must be unique per company!'),
     ]
     
-    @api.depends('balance', 'hold_amount', 'overdraft_limit')
+    @api.depends('balance', 'hold_amount', 'overdraft_limit', 'allow_overdraft')
     def _compute_available_balance(self):
         for account in self:
             if account.allow_overdraft:
@@ -95,11 +95,12 @@ class Account(models.Model):
             else:
                 account.available_balance = max(0, account.balance - account.hold_amount)
     
-    @api.model
-    def create(self, vals):
-        if vals.get('account_number', 'New') == 'New':
-            vals['account_number'] = self.env['ir.sequence'].next_by_code('core_banking.account') or 'New'
-        return super(Account, self).create(vals)
+    @api.model_create_multi
+    def create(self, vals_list):
+        for vals in vals_list:
+            if vals.get('account_number', 'New') == 'New':
+                vals['account_number'] = self.env['ir.sequence'].next_by_code('core_banking.account') or 'New'
+        return super().create(vals_list)
     
     def action_activate(self):
         self.write({
@@ -235,11 +236,12 @@ class StandingOrder(models.Model):
                                ondelete='set null')
     created_date = fields.Datetime(string='Created On', default=fields.Datetime.now)
     
-    @api.model
-    def create(self, vals):
-        if vals.get('name', 'New') == 'New':
-            vals['name'] = self.env['ir.sequence'].next_by_code('core_banking.standing.order') or 'New'
-        return super(StandingOrder, self).create(vals)
+    @api.model_create_multi
+    def create(self, vals_list):
+        for vals in vals_list:
+            if vals.get('name', 'New') == 'New':
+                vals['name'] = self.env['ir.sequence'].next_by_code('core_banking.standing.order') or 'New'
+        return super().create(vals_list)
     
     def action_activate(self):
         self.write({'state': 'active'})

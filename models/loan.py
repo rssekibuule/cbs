@@ -68,11 +68,12 @@ class Loan(models.Model):
         for loan in self:
             loan.total_paid = 0.0  # Simplified for now
     
-    @api.model
-    def create(self, vals):
-        if vals.get('name', 'New') == 'New':
-            vals['name'] = self.env['ir.sequence'].next_by_code('core_banking.loan') or 'New'
-        return super(Loan, self).create(vals)
+    @api.model_create_multi
+    def create(self, vals_list):
+        for vals in vals_list:
+            if vals.get('name', 'New') == 'New':
+                vals['name'] = self.env['ir.sequence'].next_by_code('core_banking.loan') or 'New'
+        return super().create(vals_list)
     
     def action_submit(self):
         self.write({'state': 'submitted'})

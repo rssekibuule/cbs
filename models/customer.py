@@ -99,15 +99,16 @@ class Customer(models.Model):
         for customer in self:
             customer.total_balance = sum(account.balance for account in customer.account_ids)
     
-    @api.model
-    def create(self, vals):
-        if vals.get('ref', 'New') == 'New':
-            vals['ref'] = self.env['ir.sequence'].next_by_code('core_banking.customer') or 'New'
-        return super(Customer, self).create(vals)
+    @api.model_create_multi
+    def create(self, vals_list):
+        for vals in vals_list:
+            if vals.get('ref', 'New') == 'New':
+                vals['ref'] = self.env['ir.sequence'].next_by_code('core_banking.customer') or 'New'
+        return super().create(vals_list)
     
     def write(self, vals):
         vals['last_updated'] = fields.Datetime.now()
-        return super(Customer, self).write(vals)
+        return super().write(vals)
     
     def action_verify(self):
         self.write({'state': 'verified'})

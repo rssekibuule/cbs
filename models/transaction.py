@@ -102,17 +102,18 @@ class Transaction(models.Model):
         for record in self:
             record.display_name = f"{record.name or 'TX'}: {record.transaction_type.upper()} {record.currency_id.symbol}{abs(record.amount):,.2f}"
     
-    @api.model
-    def create(self, vals):
-        if vals.get('name', 'New') == 'New':
-            vals['name'] = self.env['ir.sequence'].next_by_code('core_banking.transaction') or 'New'
-        return super(Transaction, self).create(vals)
+    @api.model_create_multi
+    def create(self, vals_list):
+        for vals in vals_list:
+            if vals.get('name', 'New') == 'New':
+                vals['name'] = self.env['ir.sequence'].next_by_code('core_banking.transaction') or 'New'
+        return super().create(vals_list)
     
     def write(self, vals):
         if 'state' in vals and vals['state'] == 'posted':
             vals['posted_by'] = self.env.user.id
             vals['posted_date'] = fields.Datetime.now()
-        return super(Transaction, self).write(vals)
+        return super().write(vals)
     
     def action_post(self):
         """Post the transaction and update account balances"""
@@ -226,11 +227,12 @@ class TransactionReconciliation(models.Model):
                                   ondelete='set null')
     notes = fields.Text(string='Notes')
     
-    @api.model
-    def create(self, vals):
-        if vals.get('name', 'New') == 'New':
-            vals['name'] = self.env['ir.sequence'].next_by_code('core_banking.transaction.reconciliation') or 'New'
-        return super(TransactionReconciliation, self).create(vals)
+    @api.model_create_multi
+    def create(self, vals_list):
+        for vals in vals_list:
+            if vals.get('name', 'New') == 'New':
+                vals['name'] = self.env['ir.sequence'].next_by_code('core_banking.transaction.reconciliation') or 'New'
+        return super().create(vals_list)
     
     def action_reconcile(self):
         """Mark selected transactions as reconciled"""
