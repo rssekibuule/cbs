@@ -117,14 +117,19 @@ class Transaction(models.Model):
     def action_post(self):
         """Post the transaction and update account balances"""
         for record in self.filtered(lambda t: t.state in ['draft', 'pending']):
-            # Update account balance based on transaction type
-            if record.transaction_type in ['deposit', 'refund']:
-                record.account_id.balance += record.amount
-            elif record.transaction_type in ['withdrawal', 'fee', 'payment']:
-                record.account_id.balance -= record.amount
-            elif record.transaction_type == 'transfer' and record.destination_account_id:
-                record.account_id.balance -= record.amount
-                record.destination_account_id.balance += record.amount
+            # Validate sufficient balance for debits
+            if record.amount < 0:  # Debit transaction
+                available_balance = record.account_id.available_balance
+                if abs(record.amount) > available_balance:
+                    raise UserError(_('Insufficient available balance. Available: %s, Required: %s') % 
+                                  (available_balance, abs(record.amount)))
+            
+            # Update account balance using the amount as stored (positive/negative)
+            record.account_id.balance += record.amount
+            
+            # For transfers, update destination account
+            if record.transaction_type == 'transfer' and record.destination_account_id:
+                record.destination_account_id.balance += abs(record.amount)
             
             # Update transaction state
             record.write({
@@ -134,9 +139,10 @@ class Transaction(models.Model):
             })
             
             # Update last transaction date on account
-            record.account_id.last_transaction_date = fields.Datetime.now()
+            current_time = fields.Datetime.now()
+            record.account_id.last_transaction_date = current_time
             if record.destination_account_id:
-                record.destination_account_id.last_transaction_date = fields.Datetime.now()
+                record.destination_account_id.last_transaction_date = current_time
     
     def action_reverse(self, date=None):
         """Reverse a posted transaction"""

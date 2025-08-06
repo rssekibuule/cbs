@@ -29,6 +29,9 @@
         'security/security.xml',
         'security/ir.model.access.xml',
         
+        # Data
+        'data/sequences.xml',
+        
         # Views
         'views/customer_views.xml',
         'views/account_views.xml',

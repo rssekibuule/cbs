@@ -3,7 +3,7 @@ from odoo.exceptions import ValidationError, UserError
 from datetime import date, datetime
 
 class Customer(models.Model):
-    _name = 'x_core_banking.customer'
+    _name = 'core_banking.customer'
     _description = 'Banking Customer'
     _inherit = ['mail.thread', 'mail.activity.mixin']
     _order = 'name'
@@ -47,7 +47,7 @@ class Customer(models.Model):
     id_expiry_date = fields.Date(string='ID Expiry Date')
     
     # Additional Information
-    customer_segment_id = fields.Many2one('x_core_banking.customer.segment', string='Customer Segment', ondelete='set null')
+    customer_segment_id = fields.Many2one('core_banking.customer.segment', string='Customer Segment', ondelete='set null')
     is_pep = fields.Boolean(string='Politically Exposed Person (PEP)')
     is_high_risk = fields.Boolean(string='High Risk Customer')
     notes = fields.Text(string='Internal Notes')
@@ -68,11 +68,11 @@ class Customer(models.Model):
     relationship_manager_id = fields.Many2one('res.users', string='Relationship Manager', ondelete='set null')
     
     # Document Management
-    document_ids = fields.One2many('x_core_banking.customer.document', 'customer_id', string='Documents')
+    document_ids = fields.One2many('core_banking.customer.document', 'customer_id', string='Documents')
     
     # Related Models
-    account_ids = fields.One2many('x_core_banking.account', 'customer_id', string='Accounts')
-    loan_ids = fields.One2many('x_core_banking.loan', 'customer_id', string='Loans')
+    account_ids = fields.One2many('core_banking.account', 'customer_id', string='Accounts')
+    loan_ids = fields.One2many('core_banking.loan', 'customer_id', string='Loans')
     
     # Computed Fields
     age = fields.Integer(string='Age', compute='_compute_age', store=True)
@@ -132,12 +132,12 @@ class Customer(models.Model):
 
 
 class CustomerDocument(models.Model):
-    _name = 'x_core_banking.customer.document'
+    _name = 'core_banking.customer.document'
     _description = 'Customer Document'
     _order = 'date_uploaded desc'
     
     name = fields.Char(string='Document Name', required=True)
-    customer_id = fields.Many2one('x_core_banking.customer', string='Customer', ondelete='cascade')
+    customer_id = fields.Many2one('core_banking.customer', string='Customer', ondelete='cascade')
     document_type = fields.Selection([
         ('id_proof', 'ID Proof'),
         ('address_proof', 'Address Proof'),
@@ -157,7 +157,7 @@ class CustomerDocument(models.Model):
 
 
 class CustomerSegment(models.Model):
-    _name = 'x_core_banking.customer.segment'
+    _name = 'core_banking.customer.segment'
     _description = 'Customer Segment'
     
     name = fields.Char(string='Segment Name', required=True)

@@ -1,6 +1,9 @@
 from odoo import models, fields, api, _
 from odoo.exceptions import ValidationError, UserError
-from datetime import date, datetime
+from datetime import date, datetime, timedelta
+import logging
+
+_logger = logging.getLogger(__name__)
 
 class Account(models.Model):
     _name = 'core_banking.account'
