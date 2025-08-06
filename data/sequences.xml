@@ -1,8 +1,7 @@
-
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
     <data noupdate="1">
-        
+
         <!-- Customer Sequence -->
         <record id="seq_customer" model="ir.sequence">
             <field name="name">Customer Sequence</field>
@@ -12,7 +11,7 @@
             <field name="number_next">1</field>
             <field name="number_increment">1</field>
         </record>
-        
+
         <!-- Account Sequence -->
         <record id="seq_account" model="ir.sequence">
             <field name="name">Account Sequence</field>
@@ -22,7 +21,7 @@
             <field name="number_next">1</field>
             <field name="number_increment">1</field>
         </record>
-        
+
         <!-- Transaction Sequence -->
         <record id="seq_transaction" model="ir.sequence">
             <field name="name">Transaction Sequence</field>
@@ -32,7 +31,7 @@
             <field name="number_next">1</field>
             <field name="number_increment">1</field>
         </record>
-        
+
         <!-- Loan Sequence -->
         <record id="seq_loan" model="ir.sequence">
             <field name="name">Loan Sequence</field>
@@ -42,7 +41,7 @@
             <field name="number_next">1</field>
             <field name="number_increment">1</field>
         </record>
-        
+
         <!-- Standing Order Sequence -->
         <record id="seq_standing_order" model="ir.sequence">
             <field name="name">Standing Order Sequence</field>
@@ -52,7 +51,7 @@
             <field name="number_next">1</field>
             <field name="number_increment">1</field>
         </record>
-        
+
         <!-- Reconciliation Sequence -->
         <record id="seq_reconciliation" model="ir.sequence">
             <field name="name">Transaction Reconciliation Sequence</field>
@@ -62,6 +61,69 @@
             <field name="number_next">1</field>
             <field name="number_increment">1</field>
         </record>
-        
+
+        <!-- Loan Sequence -->
+        <record id="seq_core_banking_loan" model="ir.sequence">
+            <field name="name">Loan Sequence</field>
+            <field name="code">core_banking.loan</field>
+            <field name="prefix">LN</field>
+            <field name="padding">6</field>
+            <field name="company_id" eval="False"/>
+        </record>
+
+        <!-- Loan Payment Sequence -->
+        <record id="seq_core_banking_loan_payment" model="ir.sequence">
+            <field name="name">Loan Payment Sequence</field>
+            <field name="code">core_banking.loan.payment</field>
+            <field name="prefix">LP</field>
+            <field name="padding">6</field>
+            <field name="company_id" eval="False"/>
+        </record>
+
+        <!-- Fixed Deposit Sequence -->
+        <record id="seq_core_banking_fixed_deposit" model="ir.sequence">
+            <field name="name">Fixed Deposit Sequence</field>
+            <field name="code">core_banking.fixed.deposit</field>
+            <field name="prefix">FD</field>
+            <field name="padding">6</field>
+            <field name="company_id" eval="False"/>
+        </record>
+
+        <!-- Deposit Certificate Sequence -->
+        <record id="seq_core_banking_deposit_certificate" model="ir.sequence">
+            <field name="name">Deposit Certificate Sequence</field>
+            <field name="code">core_banking.deposit.certificate</field>
+            <field name="prefix">CERT</field>
+            <field name="padding">6</field>
+            <field name="company_id" eval="False"/>
+        </record>
+
+        <!-- Bulk Transaction Sequence -->
+        <record id="seq_core_banking_bulk_transaction" model="ir.sequence">
+            <field name="name">Bulk Transaction Sequence</field>
+            <field name="code">core_banking.bulk.transaction</field>
+            <field name="prefix">BULK</field>
+            <field name="padding">6</field>
+            <field name="company_id" eval="False"/>
+        </record>
+
+        <!-- Scheduled Transaction Sequence -->
+        <record id="seq_core_banking_scheduled_transaction" model="ir.sequence">
+            <field name="name">Scheduled Transaction Sequence</field>
+            <field name="code">core_banking.scheduled.transaction</field>
+            <field name="prefix">SCHED</field>
+            <field name="padding">6</field>
+            <field name="company_id" eval="False"/>
+        </record>
+
+        <!-- QR Payment Sequence -->
+        <record id="seq_core_banking_qr_payment" model="ir.sequence">
+            <field name="name">QR Payment Sequence</field>
+            <field name="code">core_banking.qr.payment</field>
+            <field name="prefix">QR</field>
+            <field name="padding">6</field>
+            <field name="company_id" eval="False"/>
+        </record>
+
     </data>
 </odoo>

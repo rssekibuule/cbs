@@ -68,6 +68,10 @@ class Transaction(models.Model):
                                 ondelete='restrict', tracking=True)
     move_id = fields.Many2one('account.move', string='Journal Entry', 
                              ondelete='set null', copy=False)
+    loan_payment_id = fields.Many2one('core_banking.loan.payment', string='Loan Payment',
+                                    ondelete='set null')
+    bulk_transaction_id = fields.Many2one('core_banking.bulk.transaction', string='Bulk Transaction',
+                                        ondelete='set null')
     
     # Reversal Information
     reversed_entry_id = fields.Many2one('core_banking.transaction', string='Reversed Entry',
