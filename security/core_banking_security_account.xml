@@ -1,0 +1,116 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Account Access Rights -->
+    <record id="account_access" model="ir.model.access">
+        <field name="name">core_banking.account.access</field>
+        <field name="model_id" ref="model_core_banking_account"/>
+        <field name="group_id" ref="group_core_banking_user"/>
+        <field name="perm_read">1</field>
+        <field name="perm_create">1</field>
+        <field name="perm_write">1</field>
+        <field name="perm_unlink">0</field>
+    </record>
+
+    <record id="account_manager_access" model="ir.model.access">
+        <field name="name">core_banking.account.manager.access</field>
+        <field name="model_id" ref="model_core_banking_account"/>
+        <field name="group_id" ref="group_core_banking_manager"/>
+        <field name="perm_read">1</field>
+        <field name="perm_create">1</field>
+        <field name="perm_write">1</field>
+        <field name="perm_unlink">1</field>
+    </record>
+
+    <!-- Account Type Access -->
+    <record id="account_type_access" model="ir.model.access">
+        <field name="name">core_banking.account.type.access</field>
+        <field name="model_id" ref="model_core_banking_account_type"/>
+        <field name="group_id" ref="group_core_banking_user"/>
+        <field name="perm_read">1</field>
+        <field name="perm_create">0</field>
+        <field name="perm_write">0</field>
+        <field name="perm_unlink">0</field>
+    </record>
+
+    <record id="account_type_manager_access" model="ir.model.access">
+        <field name="name">core_banking.account.type.manager.access</field>
+        <field name="model_id" ref="model_core_banking_account_type"/>
+        <field name="group_id" ref="group_core_banking_manager"/>
+        <field name="perm_read">1</field>
+        <field name="perm_create">1</field>
+        <field name="perm_write">1</field>
+        <field name="perm_unlink">1</field>
+    </record>
+
+    <!-- Account Record Rules -->
+    <record id="account_rule" model="ir.rule">
+        <field name="name">Account: branch users</field>
+        <field name="model_id" ref="model_core_banking_account"/>
+        <field name="domain_force">[('branch_id', 'in', user.branch_ids.ids)]</field>
+        <field name="groups" eval="[(4, ref('group_core_banking_user'))]"/>
+    </record>
+
+    <record id="account_manager_rule" model="ir.rule">
+        <field name="name">Account: manager</field>
+        <field name="model_id" ref="model_core_banking_account"/>
+        <field name="domain_force">[(1, '=', 1)]</field>
+        <field name="groups" eval="[(4, ref('group_core_banking_manager'))]"/>
+    </record>
+
+    <!-- Transaction Access Rights -->
+    <record id="transaction_access" model="ir.model.access">
+        <field name="name">core_banking.transaction.access</field>
+        <field name="model_id" ref="model_core_banking_transaction"/>
+        <field name="group_id" ref="group_core_banking_user"/>
+        <field name="perm_read">1</field>
+        <field name="perm_create">1</field>
+        <field name="perm_write">1</field>
+        <field name="perm_unlink">0</field>
+    </record>
+
+    <record id="transaction_manager_access" model="ir.model.access">
+        <field name="name">core_banking.transaction.manager.access</field>
+        <field name="model_id" ref="model_core_banking_transaction"/>
+        <field name="group_id" ref="group_core_banking_manager"/>
+        <field name="perm_read">1</field>
+        <field name="perm_create">1</field>
+        <field name="perm_write">1</field>
+        <field name="perm_unlink">1</field>
+    </record>
+
+    <!-- Transaction Record Rules -->
+    <record id="transaction_rule" model="ir.rule">
+        <field name="name">Transaction: branch users</field>
+        <field name="model_id" ref="model_core_banking_transaction"/>
+        <field name="domain_force">[('branch_id', 'in', user.branch_ids.ids)]</field>
+        <field name="groups" eval="[(4, ref('group_core_banking_user'))]"/>
+    </record>
+
+    <record id="transaction_manager_rule" model="ir.rule">
+        <field name="name">Transaction: manager</field>
+        <field name="model_id" ref="model_core_banking_transaction"/>
+        <field name="domain_force">[(1, '=', 1)]</field>
+        <field name="groups" eval="[(4, ref('group_core_banking_manager'))]"/>
+    </record>
+
+    <!-- Transaction Type Access -->
+    <record id="transaction_type_access" model="ir.model.access">
+        <field name="name">core_banking.transaction.type.access</field>
+        <field name="model_id" ref="model_core_banking_transaction_type"/>
+        <field name="group_id" ref="group_core_banking_user"/>
+        <field name="perm_read">1</field>
+        <field name="perm_create">0</field>
+        <field name="perm_write">0</field>
+        <field name="perm_unlink">0</field>
+    </record>
+
+    <record id="transaction_type_manager_access" model="ir.model.access">
+        <field name="name">core_banking.transaction.type.manager.access</field>
+        <field name="model_id" ref="model_core_banking_transaction_type"/>
+        <field name="group_id" ref="group_core_banking_manager"/>
+        <field name="perm_read">1</field>
+        <field name="perm_create">1</field>
+        <field name="perm_write">1</field>
+        <field name="perm_unlink">1</field>
+    </record>
+</odoo>

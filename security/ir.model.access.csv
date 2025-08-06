@@ -1,0 +1,7 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+access_customer,customer,model_core_banking_customer,base.group_user,1,1,1,0
+access_customer_manager,customer.manager,model_core_banking_customer,base.group_system,1,1,1,1
+access_customer_document,customer.document,model_core_banking_customer_document,base.group_user,1,1,1,0
+access_customer_document_manager,customer.document.manager,model_core_banking_customer_document,base.group_system,1,1,1,1
+access_customer_segment,customer.segment,model_core_banking_customer_segment,base.group_user,1,1,1,0
+access_customer_segment_manager,customer.segment.manager,model_core_banking_customer_segment,base.group_system,1,1,1,1

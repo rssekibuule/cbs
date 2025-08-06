@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Customer Access Rights -->
+    <record id="customer_access" model="ir.model.access">
+        <field name="name">core_banking.customer.access</field>
+        <field name="model_id" ref="model_core_banking_customer"/>
+        <field name="group_id" ref="group_core_banking_user"/>
+        <field name="perm_read">1</field>
+        <field name="perm_create">1</field>
+        <field name="perm_write">1</field>
+        <field name="perm_unlink">0</field>
+    </record>
+
+    <record id="customer_manager_access" model="ir.model.access">
+        <field name="name">core_banking.customer.manager.access</field>
+        <field name="model_id" ref="model_core_banking_customer"/>
+        <field name="group_id" ref="group_core_banking_manager"/>
+        <field name="perm_read">1</field>
+        <field name="perm_create">1</field>
+        <field name="perm_write">1</field>
+        <field name="perm_unlink">1</field>
+    </record>
+
+    <!-- Customer Document Access -->
+    <record id="customer_document_access" model="ir.model.access">
+        <field name="name">core_banking.customer.document.access</field>
+        <field name="model_id" ref="model_core_banking_customer_document"/>
+        <field name="group_id" ref="group_core_banking_user"/>
+        <field name="perm_read">1</field>
+        <field name="perm_create">1</field>
+        <field name="perm_write">1</field>
+        <field name="perm_unlink">0</field>
+    </record>
+
+    <!-- Customer Record Rules -->
+    <record id="customer_rule" model="ir.rule">
+        <field name="name">Customer: branch users</field>
+        <field name="model_id" ref="model_core_banking_customer"/>
+        <field name="domain_force">[('branch_id', 'in', user.branch_ids.ids)]</field>
+        <field name="groups" eval="[(4, ref('group_core_banking_user'))]"/>
+    </record>
+
+    <record id="customer_manager_rule" model="ir.rule">
+        <field name="name">Customer: manager</field>
+        <field name="model_id" ref="model_core_banking_customer"/>
+        <field name="domain_force">[(1, '=', 1)]</field>
+        <field name="groups" eval="[(4, ref('group_core_banking_manager'))]"/>
+    </record>
+
+    <record id="customer_document_rule" model="ir.rule">
+        <field name="name">Customer Document: owner or manager</field>
+        <field name="model_id" ref="model_core_banking_customer_document"/>
+        <field name="domain_force">['|', ('customer_id.branch_id', 'in', user.branch_ids.ids), ('create_uid', '=', user.id)]</field>
+        <field name="groups" eval="[(4, ref('group_core_banking_user'))]"/>
+    </record>
+</odoo>

@@ -1,0 +1,329 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Loan Product Views -->
+    <record id="view_loan_product_tree" model="ir.ui.view">
+        <field name="name">core_banking.loan.product.tree</field>
+        <field name="model">core_banking.loan.product</field>
+        <field name="arch" type="xml">
+            <tree string="Loan Products">
+                <field name="name"/>
+                <field name="code"/>
+                <field name="min_amount" widget="monetary" options="{'currency_field': 'currency_id'}"/>
+                <field name="max_amount" widget="monetary" options="{'currency_field': 'currency_id'}"/>
+                <field name="interest_rate"/>
+                <field name="term"/>
+                <field name="active"/>
+            </tree>
+        </field>
+    </record>
+
+    <record id="view_loan_product_form" model="ir.ui.view">
+        <field name="name">core_banking.loan.product.form</field>
+        <field name="model">core_banking.loan.product</field>
+        <field name="arch" type="xml">
+            <form string="Loan Product">
+                <sheet>
+                    <div class="oe_title">
+                        <h1>
+                            <field name="name"/>
+                        </h1>
+                        <h2>
+                            <field name="code" class="text-muted"/>
+                        </h2>
+                    </div>
+                    <group>
+                        <group>
+                            <field name="active"/>
+                            <field name="currency_id" options="{'no_open': True}"/>
+                            <field name="min_amount" widget="monetary" options="{'currency_field': 'currency_id'}"/>
+                            <field name="max_amount" widget="monetary" options="{'currency_field': 'currency_id'}"/>
+                            <field name="term"/>
+                            <field name="term_unit" string="Term Unit"/>
+                        </group>
+                        <group>
+                            <field name="interest_type"/>
+                            <field name="interest_rate"/>
+                            <field name="interest_period" string="Interest Period"/>
+                            <field name="payment_frequency"/>
+                            <field name="grace_period" string="Grace Period (Days)"/>
+                        </group>
+                    </group>
+                    <notebook>
+                        <page string="Fees">
+                            <field name="fee_ids">
+                                <tree>
+                                    <field name="name"/>
+                                    <field name="fee_type"/>
+                                    <field name="amount" widget="monetary" options="{'currency_field': 'currency_id'}"/>
+                                    <field name="is_tax_deductible"/>
+                                </tree>
+                            </field>
+                        </page>
+                        <page string="Eligibility">
+                            <group>
+                                <group>
+                                    <field name="min_age"/>
+                                    <field name="max_age"/>
+                                    <field name="required_documents" widget="many2many_tags"/>
+                                </group>
+                                <group>
+                                    <field name="min_income" widget="monetary" options="{'currency_field': 'currency_id'}"/>
+                                    <field name="min_credit_score"/>
+                                    <field name="guarantors_required"/>
+                                </group>
+                            </group>
+                        </page>
+                        <page string="Workflow">
+                            <group>
+                                <group>
+                                    <field name="requires_approval"/>
+                                    <field name="approval_sequence" attrs="{'invisible': [('requires_approval', '=', False)]}"/>
+                                    <field name="requires_collateral"/>
+                                </group>
+                                <group>
+                                    <field name="auto_approve"/>
+                                    <field name="auto_disburse"/>
+                                    <field name="allow_topup"/>
+                                    <field name="allow_early_repayment"/>
+                                </group>
+                            </group>
+                        </page>
+                    </notebook>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <!-- Loan Application Views -->
+    <record id="view_loan_application_tree" model="ir.ui.view">
+        <field name="name">core_banking.loan.application.tree</field>
+        <field name="model">core_banking.loan.application</field>
+        <field name="arch" type="xml">
+            <tree string="Loan Applications" decoration-success="state == 'approved'" decoration-warning="state == 'draft'" decoration-danger="state in ('rejected', 'cancelled')">
+                <field name="name"/>
+                <field name="customer_id"/>
+                <field name="product_id"/>
+                <field name="amount" widget="monetary" options="{'currency_field': 'currency_id'}"/>
+                <field name="state" widget="statusbar"/>
+            </tree>
+        </field>
+    </record>
+
+    <record id="view_loan_application_form" model="ir.ui.view">
+        <field name="name">core_banking.loan.application.form</field>
+        <field name="model">core_banking.loan.application</field>
+        <field name="arch" type="xml">
+            <form string="Loan Application">
+                <header>
+                    <field name="state" widget="statusbar" statusbar_visible="draft,submitted,under_review,approved,rejected,disbursed,cancelled"/>
+                </header>
+                <sheet>
+                    <div class="oe_button_box" name="button_box">
+                        <button name="action_submit" string="Submit" type="object" class="oe_stat_button" attrs="{'invisible': [('state', '!=', 'draft')]}">
+                            <field name="state" widget="statinfo" string="Submit"/>
+                        </button>
+                        <button name="action_approve" string="Approve" type="object" class="oe_stat_button" attrs="{'invisible': [('state', 'not in', ['submitted', 'under_review'])]}">
+                            <field name="state" widget="statinfo" string="Approve"/>
+                        </button>
+                        <button name="action_reject" string="Reject" type="object" class="oe_stat_button" attrs="{'invisible': [('state', 'not in', ['submitted', 'under_review'])]}">
+                            <field name="state" widget="statinfo" string="Reject"/>
+                        </button>
+                        <button name="action_disburse" string="Disburse" type="object" class="oe_stat_button" attrs="{'invisible': [('state', '!=', 'approved')]}">
+                            <field name="state" widget="statinfo" string="Disburse"/>
+                        </button>
+                    </div>
+                    <div class="oe_title">
+                        <h1>
+                            <field name="name"/>
+                        </h1>
+                        <h2>
+                            <field name="customer_id" class="text-muted" options="{'no_open': True}"/>
+                        </h2>
+                    </div>
+                    <group>
+                        <group>
+                            <field name="product_id" options="{'no_open': True}"/>
+                            <field name="currency_id" options="{'no_open': True}" readonly="1"/>
+                            <field name="amount" widget="monetary" options="{'currency_field': 'currency_id'}" attrs="{'readonly': [('state', '!=', 'draft')]}"/>
+                            <field name="term" attrs="{'readonly': [('state', '!=', 'draft')]}"/>
+                            <field name="term_unit" string="Term Unit" attrs="{'readonly': [('state', '!=', 'draft')]}"/>
+                        </group>
+                        <group>
+                            <field name="interest_rate" attrs="{'readonly': [('state', '!=', 'draft')]}"/>
+                            <field name="payment_frequency" attrs="{'readonly': [('state', '!=', 'draft')]}"/>
+                            <field name="application_date" readonly="1"/>
+                            <field name="branch_id" options="{'no_open': True}" attrs="{'readonly': [('state', '!=', 'draft')]}"/>
+                        </group>
+                    </group>
+                    <notebook>
+                        <page string="Repayment Schedule" attrs="{'invisible': [('state', 'in', ['draft', 'rejected', 'cancelled'])]}">
+                            <field name="repayment_schedule_ids" readonly="1">
+                                <tree>
+                                    <field name="due_date"/>
+                                    <field name="principal" widget="monetary" options="{'currency_field': 'currency_id'}"/>
+                                    <field name="interest" widget="monetary" options="{'currency_field': 'currency_id'}"/>
+                                    <field name="fees" widget="monetary" options="{'currency_field': 'currency_id'}"/>
+                                    <field name="total" widget="monetary" options="{'currency_field': 'currency_id'}"/>
+                                    <field name="state" widget="statusbar"/>
+                                </tree>
+                            </field>
+                        </page>
+                        <page string="Guarantors" attrs="{'invisible': [('state', 'in', ['rejected', 'cancelled'])]}">
+                            <field name="guarantor_ids">
+                                <tree>
+                                    <field name="partner_id" options="{'no_open': True}"/>
+                                    <field name="relation_type"/>
+                                    <field name="amount" widget="monetary" options="{'currency_field': 'currency_id'}"/>
+                                    <field name="status"/>
+                                </tree>
+                            </field>
+                        </page>
+                        <page string="Collateral" attrs="{'invisible': [('state', 'in', ['rejected', 'cancelled'])]}">
+                            <field name="collateral_ids">
+                                <tree>
+                                    <field name="name"/>
+                                    <field name="collateral_type"/>
+                                    <field name="estimated_value" widget="monetary" options="{'currency_field': 'currency_id'}"/>
+                                    <field name="status"/>
+                                </tree>
+                            </field>
+                        </page>
+                        <page string="Approval" attrs="{'invisible': [('state', 'in', ['draft', 'rejected', 'cancelled'])]}">
+                            <group>
+                                <group>
+                                    <field name="approved_amount" widget="monetary" options="{'currency_field': 'currency_id'}" readonly="1"/>
+                                    <field name="approved_term" readonly="1"/>
+                                    <field name="approved_interest_rate" readonly="1"/>
+                                </group>
+                                <group>
+                                    <field name="approved_by" readonly="1" options="{'no_open': True}"/>
+                                    <field name="approval_date" readonly="1"/>
+                                    <field name="rejection_reason" attrs="{'invisible': [('state', '!=', 'rejected')]}" readonly="1"/>
+                                </group>
+                            </group>
+                            <field name="approval_notes" readonly="1"/>
+                        </page>
+                        <page string="Disbursement" attrs="{'invisible': [('state', '!=', 'disbursed')]}">
+                            <group>
+                                <group>
+                                    <field name="disbursement_date" readonly="1"/>
+                                    <field name="disbursed_amount" widget="monetary" options="{'currency_field': 'currency_id'}" readonly="1"/>
+                                    <field name="disbursement_account_id" options="{'no_open': True}" readonly="1"/>
+                                </group>
+                                <group>
+                                    <field name="disbursed_by" readonly="1" options="{'no_open': True}"/>
+                                    <field name="disbursement_reference" readonly="1"/>
+                                    <field name="first_repayment_date" readonly="1"/>
+                                </group>
+                            </group>
+                            <field name="disbursement_notes" readonly="1"/>
+                        </page>
+                    </notebook>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <!-- Loan Application Search View -->
+    <record id="view_loan_application_search" model="ir.ui.view">
+        <field name="name">core_banking.loan.application.search</field>
+        <field name="model">core_banking.loan.application</field>
+        <field name="arch" type="xml">
+            <search string="Loan Application">
+                <field name="name"/>
+                <field name="customer_id"/>
+                <field name="product_id"/>
+                <filter string="Draft" name="draft" domain="[('state', '=', 'draft')]"/>
+                <filter string="Submitted" name="submitted" domain="[('state', '=', 'submitted')]"/>
+                <filter string="Approved" name="approved" domain="[('state', '=', 'approved')]"/>
+                <filter string="Disbursed" name="disbursed" domain="[('state', '=', 'disbursed')]"/>
+                <group expand="0" string="Group By">
+                    <filter string="Product" name="group_product" context="{'group_by':'product_id'}"/>
+                    <filter string="State" name="group_state" context="{'group_by':'state'}"/>
+                    <filter string="Branch" name="group_branch" context="{'group_by':'branch_id'}"/>
+                </group>
+            </search>
+        </field>
+    </record>
+
+    <!-- Loan Dashboard View -->
+    <record id="view_loan_dashboard" model="ir.ui.view">
+        <field name="name">core_banking.loan.dashboard</field>
+        <field name="model">core_banking.loan.application</field>
+        <field name="arch" type="xml">
+            <dashboard>
+                <view type="search" ref="view_loan_application_search"/>
+                <group>
+                    <group>
+                        <div class="o_kanban_view o_kanban_dashboard o_salesteam_kanban">
+                            <t t-foreach="['draft', 'submitted', 'under_review', 'approved', 'disbursed', 'rejected', 'cancelled']" t-as="state">
+                                <div class="oe_kanban_global_click o_kanban_group" t-att-data-id="state">
+                                    <div class="o_kanban_header">
+                                        <span class="o_kanban_header_title">
+                                            <t t-esc="state"/>
+                                        </span>
+                                        <div class="o_kanban_counter">
+                                            <div class="o_kanban_counter_side">
+                                                <span class="o_kanban_counter_number" t-esc="search_count([('state', '=', state)])"/>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </t>
+                        </div>
+                    </group>
+                </group>
+                <group>
+                    <group>
+                        <div class="o_kanban_view o_kanban_dashboard o_salesteam_kanban">
+                            <t t-foreach="context.get('product_ids', [])" t-as="product_id">
+                                <div class="oe_kanban_global_click o_kanban_group" t-att-data-id="product_id">
+                                    <div class="o_kanban_header">
+                                        <span class="o_kanban_header_title">
+                                            <t t-esc="env['core_banking.loan.product'].browse(product_id).name"/>
+                                        </span>
+                                        <div class="o_kanban_counter">
+                                            <div class="o_kanban_counter_side">
+                                                <span class="o_kanban_counter_number">
+                                                    <t t-esc="search_count([('product_id', '=', product_id)])"/>
+                                                </span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </t>
+                        </div>
+                    </group>
+                </group>
+            </dashboard>
+        </field>
+    </record>
+
+    <!-- Loan Menu Items -->
+    <menuitem id="menu_loan_root" name="Loans" sequence="40"/>
+    
+    <menuitem id="menu_loan_application" name="Loan Applications" parent="menu_loan_root" action="action_loan_application" sequence="10"/>
+    <menuitem id="menu_loan_product" name="Loan Products" parent="menu_loan_root" action="action_loan_product" sequence="20"/>
+    
+    <record id="action_loan_application" model="ir.actions.act_window">
+        <field name="name">Loan Applications</field>
+        <field name="res_model">core_banking.loan.application</field>
+        <field name="view_mode">dashboard,tree,form,kanban,activity</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                Create your first loan application
+            </p>
+        </field>
+    </record>
+
+    <record id="action_loan_product" model="ir.actions.act_window">
+        <field name="name">Loan Products</field>
+        <field name="res_model">core_banking.loan.product</field>
+        <field name="view_mode">tree,form</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                Create your first loan product
+            </p>
+        </field>
+    </record>
+</odoo>

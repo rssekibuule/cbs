@@ -1,0 +1,321 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Deposit Product Views -->
+    <record id="view_deposit_product_tree" model="ir.ui.view">
+        <field name="name">core_banking.deposit.product.tree</field>
+        <field name="model">core_banking.deposit.product</field>
+        <field name="arch" type="xml">
+            <tree string="Deposit Products">
+                <field name="name"/>
+                <field name="code"/>
+                <field name="product_type"/>
+                <field name="currency_id" invisible="1"/>
+                <field name="min_deposit" widget="monetary" options="{'currency_field': 'currency_id'}"/>
+                <field name="interest_rate"/>
+                <field name="term" string="Term (months)"/>
+                <field name="active"/>
+            </tree>
+        </field>
+    </record>
+
+    <record id="view_deposit_product_form" model="ir.ui.view">
+        <field name="name">core_banking.deposit.product.form</field>
+        <field name="model">core_banking.deposit.product</field>
+        <field name="arch" type="xml">
+            <form string="Deposit Product">
+                <sheet>
+                    <div class="oe_title">
+                        <h1>
+                            <field name="name"/>
+                        </h1>
+                        <h2>
+                            <field name="code" class="text-muted"/>
+                        </h2>
+                    </div>
+                    <group>
+                        <group>
+                            <field name="product_type"/>
+                            <field name="currency_id" options="{'no_open': True}"/>
+                            <field name="min_deposit" widget="monetary" options="{'currency_field': 'currency_id'}"/>
+                            <field name="min_balance" widget="monetary" options="{'currency_field': 'currency_id'}" help="Minimum balance to earn interest"/>
+                        </group>
+                        <group>
+                            <field name="interest_rate"/>
+                            <field name="interest_payment_frequency"/>
+                            <field name="term" string="Term (months)" attrs="{'invisible': [('product_type', '!=', 'fixed')]}"/>
+                            <field name="allow_withdrawal" attrs="{'invisible': [('product_type', '!=', 'savings')]}"/>
+                            <field name="withdrawal_fee" attrs="{'invisible': [('allow_withdrawal', '=', False)]}" widget="monetary" options="{'currency_field': 'currency_id'}"/>
+                        </group>
+                    </group>
+                    <notebook>
+                        <page string="Interest Calculation">
+                            <group>
+                                <group>
+                                    <field name="interest_calculation_method"/>
+                                    <field name="interest_rounding" string="Rounding Method"/>
+                                    <field name="interest_post_frequency" string="Post Interest"/>
+                                </group>
+                                <group>
+                                    <field name="tax_on_interest"/>
+                                    <field name="tax_id" attrs="{'invisible': [('tax_on_interest', '=', False)]}" options="{'no_open': True}"/>
+                                    <field name="compound_interest" string="Compound Interest"/>
+                                    <field name="compounding_frequency" attrs="{'invisible': [('compound_interest', '=', False)]}"/>
+                                </group>
+                            </group>
+                        </page>
+                        <page string="Fees & Charges">
+                            <field name="fee_ids">
+                                <tree>
+                                    <field name="name"/>
+                                    <field name="fee_type"/>
+                                    <field name="amount" widget="monetary" options="{'currency_field': 'currency_id'}"/>
+                                    <field name="tax_id" options="{'no_open': True}"/>
+                                </tree>
+                            </field>
+                        </page>
+                        <page string="Accounting">
+                            <group>
+                                <group>
+                                    <field name="accounting_journal_id" string="Journal" options="{'no_open': True}"/>
+                                    <field name="account_interest_expense_id" string="Interest Expense Account" options="{'no_open': True}"/>
+                                    <field name="account_interest_payable_id" string="Interest Payable Account" options="{'no_open': True}"/>
+                                </group>
+                                <group>
+                                    <field name="account_fee_income_id" string="Fee Income Account" options="{'no_open': True}"/>
+                                    <field name="account_early_withdrawal_fee_id" string="Early Withdrawal Fee Account" options="{'no_open': True}"/>
+                                </group>
+                            </group>
+                        </page>
+                    </notebook>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <!-- Deposit Account Views -->
+    <record id="view_deposit_account_tree" model="ir.ui.view">
+        <field name="name">core_banking.deposit.account.tree</field>
+        <field name="model">core_banking.deposit.account</field>
+        <field name="arch" type="xml">
+            <tree string="Deposit Accounts" decoration-success="state == 'active'" decoration-warning="state == 'dormant'" decoration-danger="state in ('closed', 'matured')">
+                <field name="account_number" string="Account #"/>
+                <field name="customer_id"/>
+                <field name="product_id"/>
+                <field name="balance" widget="monetary" options="{'currency_field': 'currency_id'}"/>
+                <field name="maturity_date" attrs="{'invisible': [('product_type', '!=', 'fixed')]}"/>
+                <field name="state" widget="statusbar"/>
+            </tree>
+        </field>
+    </record>
+
+    <record id="view_deposit_account_form" model="ir.ui.view">
+        <field name="name">core_banking.deposit.account.form</field>
+        <field name="model">core_banking.deposit.account</field>
+        <field name="arch" type="xml">
+            <form string="Deposit Account">
+                <header>
+                    <field name="state" widget="statusbar" statusbar_visible="draft,active,dormant,closed,matured"/>
+                </header>
+                <sheet>
+                    <div class="oe_button_box" name="button_box">
+                        <button name="action_activate" string="Activate" type="object" class="oe_stat_button" attrs="{'invisible': [('state', '!=', 'draft')]}">
+                            <field name="state" widget="statinfo" string="Activate"/>
+                        </button>
+                        <button name="action_close" string="Close" type="object" class="oe_stat_button" attrs="{'invisible': [('state', 'not in', ['active', 'dormant'])]}">
+                            <field name="state" widget="statinfo" string="Close"/>
+                        </button>
+                        <button name="action_mark_dormant" string="Mark Dormant" type="object" class="oe_stat_button" attrs="{'invisible': [('state', '!=', 'active')]}">
+                            <field name="state" widget="statinfo" string="Mark Dormant"/>
+                        </button>
+                        <button name="action_reactivate" string="Reactivate" type="object" class="oe_stat_button" attrs="{'invisible': [('state', '!=', 'dormant')]}">
+                            <field name="state" widget="statinfo" string="Reactivate"/>
+                        </button>
+                    </div>
+                    <div class="oe_title">
+                        <h1>
+                            <field name="name"/>
+                        </h1>
+                        <h2>
+                            <field name="account_number" class="text-muted"/>
+                        </h2>
+                    </div>
+                    <group>
+                        <group>
+                            <field name="customer_id" options="{'no_open': True}" attrs="{'readonly': [('state', '!=', 'draft')]}"/>
+                            <field name="product_id" options="{'no_open': True}" attrs="{'readonly': [('state', '!=', 'draft')]}"/>
+                            <field name="currency_id" options="{'no_open': True}" readonly="1"/>
+                            <field name="opening_date" attrs="{'readonly': [('state', '!=', 'draft')]}"/>
+                            <field name="maturity_date" attrs="{'invisible': [('product_type', '!=', 'fixed')]}"/>
+                        </group>
+                        <group>
+                            <field name="balance" widget="monetary" options="{'currency_field': 'currency_id'}" readonly="1"/>
+                            <field name="available_balance" widget="monetary" options="{'currency_field': 'currency_id'}" readonly="1"/>
+                            <field name="hold_amount" widget="monetary" options="{'currency_field': 'currency_id'}" readonly="1"/>
+                            <field name="interest_rate" attrs="{'readonly': [('state', '!=', 'draft')]}"/>
+                            <field name="next_interest_date" attrs="{'invisible': [('state', 'not in', ['active', 'dormant'])]}" readonly="1"/>
+                        </group>
+                    </group>
+                    <notebook>
+                        <page string="Transactions">
+                            <field name="transaction_ids" context="{'default_account_id': active_id}">
+                                <tree>
+                                    <field name="transaction_date"/>
+                                    <field name="transaction_type"/>
+                                    <field name="amount" widget="monetary" options="{'currency_field': 'currency_id'}"/>
+                                    <field name="balance" widget="monetary" options="{'currency_field': 'currency_id'}"/>
+                                    <field name="reference"/>
+                                    <field name="state" widget="statusbar"/>
+                                </tree>
+                            </field>
+                        </page>
+                        <page string="Interest" attrs="{'invisible': [('state', 'not in', ['active', 'dormant'])]}">
+                            <field name="interest_line_ids" readonly="1">
+                                <tree>
+                                    <field name="period_start"/>
+                                    <field name="period_end"/>
+                                    <field name="days" string="Days"/>
+                                    <field name="balance" widget="monetary" options="{'currency_field': 'currency_id'}"/>
+                                    <field name="interest_rate" string="Rate"/>
+                                    <field name="amount" widget="monetary" options="{'currency_field': 'currency_id'}"/>
+                                    <field name="tax_amount" widget="monetary" options="{'currency_field': 'currency_id'}"/>
+                                    <field name="net_amount" widget="monetary" options="{'currency_field': 'currency_id'}"/>
+                                    <field name="state" widget="statusbar"/>
+                                </tree>
+                            </field>
+                        </page>
+                        <page string="Standing Instructions">
+                            <field name="standing_order_ids" context="{'default_account_id': active_id}">
+                                <tree>
+                                    <field name="name"/>
+                                    <field name="amount" widget="monetary" options="{'currency_field': 'currency_id'}"/>
+                                    <field name="frequency"/>
+                                    <field name="next_execution_date"/>
+                                    <field name="state" widget="statusbar"/>
+                                </tree>
+                            </field>
+                        </page>
+                        <page string="Account Details">
+                            <group>
+                                <group>
+                                    <field name="account_officer_id" options="{'no_open': True}"/>
+                                    <field name="branch_id" options="{'no_open': True}" readonly="1"/>
+                                    <field name="created_by" options="{'no_open': True}" readonly="1"/>
+                                    <field name="created_date" readonly="1"/>
+                                </group>
+                                <group>
+                                    <field name="last_transaction_date" readonly="1"/>
+                                    <field name="last_interest_date" readonly="1"/>
+                                    <field name="maturity_action" attrs="{'invisible': [('product_type', '!=', 'fixed')]}"/>
+                                    <field name="maturity_account_id" attrs="{'invisible': [('maturity_action', '!=', 'transfer')]}" options="{'no_open': True}"/>
+                                </group>
+                            </group>
+                        </page>
+                    </notebook>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <!-- Deposit Dashboard View -->
+    <record id="view_deposit_dashboard" model="ir.ui.view">
+        <field name="name">core_banking.deposit.dashboard</field>
+        <field name="model">core_banking.deposit.account</field>
+        <field name="arch" type="xml">
+            <dashboard>
+                <view type="search" ref="view_deposit_search"/>
+                <group>
+                    <group>
+                        <div class="o_kanban_view o_kanban_dashboard o_salesteam_kanban">
+                            <t t-foreach="['active', 'dormant', 'closed', 'matured']" t-as="state">
+                                <div class="oe_kanban_global_click o_kanban_group" t-att-data-id="state">
+                                    <div class="o_kanban_header">
+                                        <span class="o_kanban_header_title">
+                                            <t t-esc="state"/>
+                                        </span>
+                                        <div class="o_kanban_counter">
+                                            <div class="o_kanban_counter_side">
+                                                <span class="o_kanban_counter_number" t-esc="search_count([('state', '=', state)])"/>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </t>
+                        </div>
+                    </group>
+                </group>
+                <group>
+                    <group>
+                        <div class="o_kanban_view o_kanban_dashboard o_salesteam_kanban">
+                            <t t-foreach="search_read([], ['product_id'], 0, 5, 'balance desc')" t-as="deposit">
+                                <div class="oe_kanban_global_click o_kanban_group">
+                                    <div class="o_kanban_header">
+                                        <span class="o_kanban_header_title">
+                                            <t t-esc="deposit['product_id'][1]"/>
+                                        </span>
+                                        <div class="o_kanban_counter">
+                                            <div class="o_kanban_counter_side">
+                                                <span class="o_kanban_counter_number">
+                                                    <t t-esc="search_count([('product_id', '=', deposit['product_id'][0])])"/>
+                                                </span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </t>
+                        </div>
+                    </group>
+                </group>
+            </dashboard>
+        </field>
+    </record>
+
+    <!-- Deposit Search View -->
+    <record id="view_deposit_search" model="ir.ui.view">
+        <field name="name">core_banking.deposit.search</field>
+        <field name="model">core_banking.deposit.account</field>
+        <field name="arch" type="xml">
+            <search string="Deposit Account">
+                <field name="account_number"/>
+                <field name="customer_id"/>
+                <field name="product_id"/>
+                <filter string="Active" name="active" domain="[('state', '=', 'active')]"/>
+                <filter string="Dormant" name="dormant" domain="[('state', '=', 'dormant')]"/>
+                <filter string="Matured" name="matured" domain="[('state', '=', 'matured')]"/>
+                <filter string="This Month" name="this_month" domain="[('opening_date', '>=', (context_today() + ' 00:00:00').replace(day=1))]"/>
+                <group expand="0" string="Group By">
+                    <filter string="Product" name="group_product" context="{'group_by':'product_id'}"/>
+                    <filter string="Status" name="group_state" context="{'group_by':'state'}"/>
+                    <filter string="Branch" name="group_branch" context="{'group_by':'branch_id'}"/>
+                </group>
+            </search>
+        </field>
+    </record>
+
+    <!-- Deposit Menu Items -->
+    <menuitem id="menu_deposit_root" name="Deposits" sequence="30"/>
+    
+    <menuitem id="menu_deposit_account" name="Deposit Accounts" parent="menu_deposit_root" action="action_deposit_account" sequence="10"/>
+    <menuitem id="menu_deposit_product" name="Deposit Products" parent="menu_deposit_root" action="action_deposit_product" sequence="20"/>
+    
+    <record id="action_deposit_account" model="ir.actions.act_window">
+        <field name="name">Deposit Accounts</field>
+        <field name="res_model">core_banking.deposit.account</field>
+        <field name="view_mode">dashboard,tree,form,kanban,activity</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                Create your first deposit account
+            </p>
+        </field>
+    </record>
+
+    <record id="action_deposit_product" model="ir.actions.act_window">
+        <field name="name">Deposit Products</field>
+        <field name="res_model">core_banking.deposit.product</field>
+        <field name="view_mode">tree,form</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                Create your first deposit product
+            </p>
+        </field>
+    </record>
+</odoo>

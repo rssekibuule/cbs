@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Security for Core Banking Models -->
+    <record id="model_x_core_banking_customer" model="ir.model">
+        <field name="name">Customer</field>
+        <field name="model">x_core_banking.customer</field>
+        <field name="info">Banking Customer</field>
+    </record>
+
+    <record id="model_x_core_banking_customer_document" model="ir.model">
+        <field name="name">Customer Document</field>
+        <field name="model">x_core_banking.customer.document</field>
+        <field name="info">Customer Document</field>
+    </record>
+
+    <record id="model_x_core_banking_customer_segment" model="ir.model">
+        <field name="name">Customer Segment</field>
+        <field name="model">x_core_banking.customer.segment</field>
+        <field name="info">Customer Segment</field>
+    </record>
+</odoo>

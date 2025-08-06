@@ -1,0 +1,155 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Loan Product Access Rights -->
+    <record id="loan_product_access" model="ir.model.access">
+        <field name="name">core_banking.loan.product.access</field>
+        <field name="model_id" ref="model_core_banking_loan_product"/>
+        <field name="group_id" ref="group_core_banking_user"/>
+        <field name="perm_read">1</field>
+        <field name="perm_create">0</field>
+        <field name="perm_write">0</field>
+        <field name="perm_unlink">0</field>
+    </record>
+
+    <record id="loan_product_manager_access" model="ir.model.access">
+        <field name="name">core_banking.loan.product.manager.access</field>
+        <field name="model_id" ref="model_core_banking_loan_product"/>
+        <field name="group_id" ref="group_core_banking_manager"/>
+        <field name="perm_read">1</field>
+        <field name="perm_create">1</field>
+        <field name="perm_write">1</field>
+        <field name="perm_unlink">1</field>
+    </record>
+
+    <!-- Loan Application Access Rights -->
+    <record id="loan_application_access" model="ir.model.access">
+        <field name="name">core_banking.loan.application.access</field>
+        <field name="model_id" ref="model_core_banking_loan_application"/>
+        <field name="group_id" ref="group_core_banking_user"/>
+        <field name="perm_read">1</field>
+        <field name="perm_create">1</field>
+        <field name="perm_write">1</field>
+        <field name="perm_unlink">0</field>
+    </record>
+
+    <record id="loan_application_manager_access" model="ir.model.access">
+        <field name="name">core_banking.loan.application.manager.access</field>
+        <field name="model_id" ref="model_core_banking_loan_application"/>
+        <field name="group_id" ref="group_core_banking_manager"/>
+        <field name="perm_read">1</field>
+        <field name="perm_create">1</field>
+        <field name="perm_write">1</field>
+        <field name="perm_unlink">1</field>
+    </record>
+
+    <!-- Loan Record Rules -->
+    <record id="loan_application_rule" model="ir.rule">
+        <field name="name">Loan Application: branch users</field>
+        <field name="model_id" ref="model_core_banking_loan_application"/>
+        <field name="domain_force">[('branch_id', 'in', user.branch_ids.ids)]</field>
+        <field name="groups" eval="[(4, ref('group_core_banking_user'))]"/>
+    </record>
+
+    <record id="loan_application_manager_rule" model="ir.rule">
+        <field name="name">Loan Application: manager</field>
+        <field name="model_id" ref="model_core_banking_loan_application"/>
+        <field name="domain_force">[(1, '=', 1)]</field>
+        <field name="groups" eval="[(4, ref('group_core_banking_manager'))]"/>
+    </record>
+
+    <!-- Loan Schedule Access Rights -->
+    <record id="loan_schedule_access" model="ir.model.access">
+        <field name="name">core_banking.loan.schedule.access</field>
+        <field name="model_id" ref="model_core_banking_loan_schedule"/>
+        <field name="group_id" ref="group_core_banking_user"/>
+        <field name="perm_read">1</field>
+        <field name="perm_create">0</field>
+        <field name="perm_write">1</field>
+        <field name="perm_unlink">0</field>
+    </record>
+
+    <!-- Loan Collateral Access Rights -->
+    <record id="loan_collateral_access" model="ir.model.access">
+        <field name="name">core_banking.loan.collateral.access</field>
+        <field name="model_id" ref="model_core_banking_loan_collateral"/>
+        <field name="group_id" ref="group_core_banking_user"/>
+        <field name="perm_read">1</field>
+        <field name="perm_create">1</field>
+        <field name="perm_write">1</field>
+        <field name="perm_unlink">0</field>
+    </record>
+
+    <record id="loan_collateral_manager_access" model="ir.model.access">
+        <field name="name">core_banking.loan.collateral.manager.access</field>
+        <field name="model_id" ref="model_core_banking_loan_collateral"/>
+        <field name="group_id" ref="group_core_banking_manager"/>
+        <field name="perm_read">1</field>
+        <field name="perm_create">1</field>
+        <field name="perm_write">1</field>
+        <field name="perm_unlink">1</field>
+    </record>
+
+    <!-- Loan Guarantor Access Rights -->
+    <record id="loan_guarantor_access" model="ir.model.access">
+        <field name="name">core_banking.loan.guarantor.access</field>
+        <field name="model_id" ref="model_core_banking_loan_guarantor"/>
+        <field name="group_id" ref="group_core_banking_user"/>
+        <field name="perm_read">1</field>
+        <field name="perm_create">1</field>
+        <field name="perm_write">1</field>
+        <field name="perm_unlink">0</field>
+    </record>
+
+    <!-- Loan Fee Access Rights -->
+    <record id="loan_fee_access" model="ir.model.access">
+        <field name="name">core_banking.loan.fee.access</field>
+        <field name="model_id" ref="model_core_banking_loan_fee"/>
+        <field name="group_id" ref="group_core_banking_user"/>
+        <field name="perm_read">1</field>
+        <field name="perm_create">0</field>
+        <field name="perm_write">1</field>
+        <field name="perm_unlink">0</field>
+    </record>
+
+    <!-- Loan Payment Access Rights -->
+    <record id="loan_payment_access" model="ir.model.access">
+        <field name="name">core_banking.loan.payment.access</field>
+        <field name="model_id" ref="model_core_banking_loan_payment"/>
+        <field name="group_id" ref="group_core_banking_user"/>
+        <field name="perm_read">1</field>
+        <field name="perm_create">1</field>
+        <field name="perm_write">1</field>
+        <field name="perm_unlink">0</field>
+    </record>
+
+    <record id="loan_payment_manager_access" model="ir.model.access">
+        <field name="name">core_banking.loan.payment.manager.access</field>
+        <field name="model_id" ref="model_core_banking_loan_payment"/>
+        <field name="group_id" ref="group_core_banking_manager"/>
+        <field name="perm_read">1</field>
+        <field name="perm_create">1</field>
+        <field name="perm_write">1</field>
+        <field name="perm_unlink">1</field>
+    </record>
+
+    <!-- Loan Disbursement Access Rights -->
+    <record id="loan_disbursement_access" model="ir.model.access">
+        <field name="name">core_banking.loan.disbursement.access</field>
+        <field name="model_id" ref="model_core_banking_loan_disbursement"/>
+        <field name="group_id" ref="group_core_banking_user"/>
+        <field name="perm_read">1</field>
+        <field name="perm_create">1</field>
+        <field name="perm_write">1</field>
+        <field name="perm_unlink">0</field>
+    </record>
+
+    <record id="loan_disbursement_manager_access" model="ir.model.access">
+        <field name="name">core_banking.loan.disbursement.manager.access</field>
+        <field name="model_id" ref="model_core_banking_loan_disbursement"/>
+        <field name="group_id" ref="group_core_banking_manager"/>
+        <field name="perm_read">1</field>
+        <field name="perm_create">1</field>
+        <field name="perm_write">1</field>
+        <field name="perm_unlink">1</field>
+    </record>
+</odoo>

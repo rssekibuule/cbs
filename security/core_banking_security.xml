@@ -1,0 +1,131 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Security Groups -->
+    <record id="group_core_banking_user" model="res.groups">
+        <field name="name">User</field>
+        <field name="category_id" ref="base.module_category_core_banking"/>
+    </record>
+
+    <record id="group_core_banking_manager" model="res.groups">
+        <field name="name">Manager</field>
+        <field name="category_id" ref="base.module_category_core_banking"/>
+        <field name="implied_ids" eval="[(4, ref('group_core_banking_user'))]"/>
+    </record>
+
+    <!-- Access Rights -->
+    <record id="account_type_access" model="ir.model.access">
+        <field name="name">core_banking.account.type.access</field>
+        <field name="model_id" ref="model_core_banking_account_type"/>
+        <field name="group_id" ref="group_core_banking_user"/>
+        <field name="perm_read">1</field>
+        <field name="perm_create">0</field>
+        <field name="perm_write">0</field>
+        <field name="perm_unlink">0</field>
+    </record>
+
+    <record id="account_type_manager_access" model="ir.model.access">
+        <field name="name">core_banking.account.type.manager.access</field>
+        <field name="model_id" ref="model_core_banking_account_type"/>
+        <field name="group_id" ref="group_core_banking_manager"/>
+        <field name="perm_read">1</field>
+        <field name="perm_create">1</field>
+        <field name="perm_write">1</field>
+        <field name="perm_unlink">1</field>
+    </record>
+
+    <!-- Branch Access -->
+    <record id="branch_access" model="ir.model.access">
+        <field name="name">core_banking.branch.access</field>
+        <field name="model_id" ref="model_core_banking_branch"/>
+        <field name="group_id" ref="group_core_banking_user"/>
+        <field name="perm_read">1</field>
+        <field name="perm_create">0</field>
+        <field name="perm_write">0</field>
+        <field name="perm_unlink">0</field>
+    </record>
+
+    <record id="branch_manager_access" model="ir.model.access">
+        <field name="name">core_banking.branch.manager.access</field>
+        <field name="model_id" ref="model_core_banking_branch"/>
+        <field name="group_id" ref="group_core_banking_manager"/>
+        <field name="perm_read">1</field>
+        <field name="perm_create">1</field>
+        <field name="perm_write">1</field>
+        <field name="perm_unlink">1</field>
+    </record>
+
+    <!-- Customer Segment Access -->
+    <record id="customer_segment_access" model="ir.model.access">
+        <field name="name">core_banking.customer.segment.access</field>
+        <field name="model_id" ref="model_core_banking_customer_segment"/>
+        <field name="group_id" ref="group_core_banking_user"/>
+        <field name="perm_read">1</field>
+        <field name="perm_create">0</field>
+        <field name="perm_write">0</field>
+        <field name="perm_unlink">0</field>
+    </record>
+
+    <record id="customer_segment_manager_access" model="ir.model.access">
+        <field name="name">core_banking.customer.segment.manager.access</field>
+        <field name="model_id" ref="model_core_banking_customer_segment"/>
+        <field name="group_id" ref="group_core_banking_manager"/>
+        <field name="perm_read">1</field>
+        <field name="perm_create">1</field>
+        <field name="perm_write">1</field>
+        <field name="perm_unlink">1</field>
+    </record>
+
+    <!-- Deposit Product Access -->
+    <record id="deposit_product_access" model="ir.model.access">
+        <field name="name">core_banking.deposit.product.access</field>
+        <field name="model_id" ref="model_core_banking_deposit_product"/>
+        <field name="group_id" ref="group_core_banking_user"/>
+        <field name="perm_read">1</field>
+        <field name="perm_create">0</field>
+        <field name="perm_write">0</field>
+        <field name="perm_unlink">0</field>
+    </record>
+
+    <record id="deposit_product_manager_access" model="ir.model.access">
+        <field name="name">core_banking.deposit.product.manager.access</field>
+        <field name="model_id" ref="model_core_banking_deposit_product"/>
+        <field name="group_id" ref="group_core_banking_manager"/>
+        <field name="perm_read">1</field>
+        <field name="perm_create">1</field>
+        <field name="perm_write">1</field>
+        <field name="perm_unlink">1</field>
+    </record>
+
+    <!-- Deposit Account Access -->
+    <record id="deposit_account_access" model="ir.model.access">
+        <field name="name">core_banking.deposit.account.access</field>
+        <field name="model_id" ref="model_core_banking_deposit_account"/>
+        <field name="group_id" ref="group_core_banking_user"/>
+        <field name="perm_read">1</field>
+        <field name="perm_create">1</field>
+        <field name="perm_write">1</field>
+        <field name="perm_unlink">0</field>
+    </record>
+
+    <!-- Record Rules -->
+    <record id="branch_rule" model="ir.rule">
+        <field name="name">Branch: multi-company</field>
+        <field name="model_id" ref="model_core_banking_branch"/>
+        <field name="domain_force">['|', ('company_id', '=', False), ('company_id', 'in', company_ids)]</field>
+        <field name="groups" eval="[(4, ref('group_core_banking_user'))]"/>
+    </record>
+
+    <record id="deposit_account_rule" model="ir.rule">
+        <field name="name">Deposit Account: branch users</field>
+        <field name="model_id" ref="model_core_banking_deposit_account"/>
+        <field name="domain_force">[('branch_id', 'in', user.branch_ids.ids)]</field>
+        <field name="groups" eval="[(4, ref('group_core_banking_user'))]"/>
+    </record>
+
+    <record id="deposit_account_manager_rule" model="ir.rule">
+        <field name="name">Deposit Account: manager</field>
+        <field name="model_id" ref="model_core_banking_deposit_account"/>
+        <field name="domain_force">[(1, '=', 1)]</field>
+        <field name="groups" eval="[(4, ref('group_core_banking_manager'))]"/>
+    </record>
+</odoo>

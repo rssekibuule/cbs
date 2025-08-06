@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Customer -->
+    <record id="access_customer_user" model="ir.model.access">
+        <field name="name">customer.user</field>
+        <field name="model_id" ref="model_x_core_banking_customer"/>
+        <field name="group_id" ref="base.group_user"/>
+        <field name="perm_read" eval="True"/>
+        <field name="perm_write" eval="True"/>
+        <field name="perm_create" eval="True"/>
+        <field name="perm_unlink" eval="False"/>
+    </record>
+    
+    <record id="access_customer_manager" model="ir.model.access">
+        <field name="name">customer.manager</field>
+        <field name="model_id" ref="model_x_core_banking_customer"/>
+        <field name="group_id" ref="base.group_system"/>
+        <field name="perm_read" eval="True"/>
+        <field name="perm_write" eval="True"/>
+        <field name="perm_create" eval="True"/>
+        <field name="perm_unlink" eval="True"/>
+    </record>
+    
+    <!-- Customer Document -->
+    <record id="access_customer_document_user" model="ir.model.access">
+        <field name="name">customer.document.user</field>
+        <field name="model_id" ref="model_x_core_banking_customer_document"/>
+        <field name="group_id" ref="base.group_user"/>
+        <field name="perm_read" eval="True"/>
+        <field name="perm_write" eval="True"/>
+        <field name="perm_create" eval="True"/>
+        <field name="perm_unlink" eval="False"/>
+    </record>
+    
+    <record id="access_customer_document_manager" model="ir.model.access">
+        <field name="name">customer.document.manager</field>
+        <field name="model_id" ref="model_x_core_banking_customer_document"/>
+        <field name="group_id" ref="base.group_system"/>
+        <field name="perm_read" eval="True"/>
+        <field name="perm_write" eval="True"/>
+        <field name="perm_create" eval="True"/>
+        <field name="perm_unlink" eval="True"/>
+    </record>
+    
+    <!-- Customer Segment -->
+    <record id="access_customer_segment_user" model="ir.model.access">
+        <field name="name">customer.segment.user</field>
+        <field name="model_id" ref="model_x_core_banking_customer_segment"/>
+        <field name="group_id" ref="base.group_user"/>
+        <field name="perm_read" eval="True"/>
+        <field name="perm_write" eval="True"/>
+        <field name="perm_create" eval="True"/>
+        <field name="perm_unlink" eval="False"/>
+    </record>
+    
+    <record id="access_customer_segment_manager" model="ir.model.access">
+        <field name="name">customer.segment.manager</field>
+        <field name="model_id" ref="model_x_core_banking_customer_segment"/>
+        <field name="group_id" ref="base.group_system"/>
+        <field name="perm_read" eval="True"/>
+        <field name="perm_write" eval="True"/>
+        <field name="perm_create" eval="True"/>
+        <field name="perm_unlink" eval="True"/>
+    </record>
+</odoo>

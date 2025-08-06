@@ -1,0 +1,268 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Transaction Tree View -->
+    <record id="view_transaction_tree" model="ir.ui.view">
+        <field name="name">core_banking.transaction.tree</field>
+        <field name="model">core_banking.transaction</field>
+        <field name="arch" type="xml">
+            <tree string="Transactions" decoration-success="state == 'posted'" decoration-warning="state == 'draft'" decoration-danger="state == 'cancelled'">
+                <field name="name" string="Reference"/>
+                <field name="transaction_date"/>
+                <field name="transaction_type"/>
+                <field name="account_id" string="Account"/>
+                <field name="destination_account_id" string="To Account"/>
+                <field name="amount" widget="monetary" options="{'currency_field': 'currency_id'}"/>
+                <field name="state" widget="statusbar"/>
+            </tree>
+        </field>
+    </record>
+
+    <!-- Transaction Form View -->
+    <record id="view_transaction_form" model="ir.ui.view">
+        <field name="name">core_banking.transaction.form</field>
+        <field name="model">core_banking.transaction</field>
+        <field name="arch" type="xml">
+            <form string="Transaction">
+                <header>
+                    <field name="state" widget="statusbar" statusbar_visible="draft,pending,posted,reconciled,reversed,cancelled"/>
+                </header>
+                <sheet>
+                    <div class="oe_button_box" name="button_box">
+                        <button name="action_post" string="Post" type="object" class="oe_stat_button" attrs="{'invisible': [('state', 'not in', ['draft', 'pending'])]}">
+                            <field name="state" widget="statinfo" string="Post"/>
+                        </button>
+                        <button name="action_reverse" string="Reverse" type="object" class="oe_stat_button" attrs="{'invisible': [('state', '!=', 'posted')]}">
+                            <field name="state" widget="statinfo" string="Reverse"/>
+                        </button>
+                        <button name="action_cancel" string="Cancel" type="object" class="oe_stat_button" attrs="{'invisible': [('state', 'not in', ['draft', 'pending'])]}">
+                            <field name="state" widget="statinfo" string="Cancel"/>
+                        </button>
+                    </div>
+                    <div class="oe_title">
+                        <h1>
+                            <field name="display_name" readonly="1"/>
+                        </h1>
+                    </div>
+                    <group>
+                        <group>
+                            <field name="transaction_type" readonly="1" attrs="{'readonly': [('id', '!=', False)]}"/>
+                            <field name="transaction_date" readonly="1" attrs="{'readonly': [('state', '!=', 'draft')]}"/>
+                            <field name="value_date" attrs="{'readonly': [('state', '!=', 'draft')]}"/>
+                            <field name="reference" attrs="{'readonly': [('state', '!=', 'draft')]}"/>
+                            <field name="description" attrs="{'readonly': [('state', '!=', 'draft')]}"/>
+                        </group>
+                        <group>
+                            <field name="account_id" attrs="{'readonly': [('state', '!=', 'draft')]}" options="{'no_open': True}"/>
+                            <field name="destination_account_id" attrs="{
+                                'invisible': [('transaction_type', 'not in', ['transfer'])],
+                                'required': [('transaction_type', '=', 'transfer')],
+                                'readonly': [('state', '!=', 'draft')]
+                            }" options="{'no_open': True}"/>
+                            <field name="amount" attrs="{'readonly': [('state', '!=', 'draft')]}" widget="monetary" options="{'currency_field': 'currency_id'}"/>
+                            <field name="currency_id" attrs="{'readonly': [('state', '!=', 'draft')]}" options="{'no_open': True}"/>
+                            <field name="exchange_rate" attrs="{
+                                'invisible': ['|', ('currency_id', '=', company_currency_id), ('id', '=', False)],
+                                'readonly': [('state', '!=', 'draft')]
+                            }"/>
+                        </group>
+                    </group>
+                    <notebook>
+                        <page string="Details">
+                            <group>
+                                <group>
+                                    <field name="company_id" options="{'no_open': True}" readonly="1"/>
+                                    <field name="branch_id" options="{'no_open': True}" readonly="1"/>
+                                    <field name="journal_id" options="{'no_open': True}" readonly="1"/>
+                                    <field name="move_id" options="{'no_open': True}" readonly="1"/>
+                                </group>
+                                <group>
+                                    <field name="created_by" options="{'no_open': True}" readonly="1"/>
+                                    <field name="created_date" readonly="1"/>
+                                    <field name="posted_by" options="{'no_open': True}" readonly="1"/>
+                                    <field name="posted_date" readonly="1"/>
+                                </group>
+                            </group>
+                        </page>
+                        <page string="Reconciliation" attrs="{'invisible': [('state', '!=', 'posted')]}">
+                            <field name="reconciliation_id" options="{'no_open': True}" readonly="1">
+                                <tree>
+                                    <field name="name"/>
+                                    <field name="reconciliation_date"/>
+                                    <field name="reconciled_by"/>
+                                </tree>
+                            </field>
+                        </page>
+                        <page string="Reversal" attrs="{'invisible': ['|', ('state', '!=', 'reversed'), ('reversed_entry_id', '=', False)]}">
+                            <field name="reversed_entry_id" options="{'no_open': True}" readonly="1">
+                                <tree>
+                                    <field name="name"/>
+                                    <field name="transaction_date"/>
+                                    <field name="transaction_type"/>
+                                    <field name="amount" widget="monetary" options="{'currency_field': 'currency_id'}"/>
+                                </tree>
+                            </field>
+                        </page>
+                    </notebook>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <!-- Transaction Search View -->
+    <record id="view_transaction_search" model="ir.ui.view">
+        <field name="name">core_banking.transaction.search</field>
+        <field name="model">core_banking.transaction</field>
+        <field name="arch" type="xml">
+            <search string="Transaction">
+                <field name="name" string="Reference"/>
+                <field name="reference"/>
+                <field name="account_id"/>
+                <field name="transaction_type"/>
+                <filter string="Posted" name="posted" domain="[('state', '=', 'posted')]"/>
+                <filter string="Draft" name="draft" domain="[('state', '=', 'draft')]"/>
+                <filter string="Today" name="today" domain="[('transaction_date', '>=', context_today())"/>
+                <filter string="This Month" name="this_month" domain="[('transaction_date', '>=', (context_today() + ' 00:00:00').replace(day=1))]"/>
+                <group expand="0" string="Group By">
+                    <filter string="Type" name="group_type" context="{'group_by':'transaction_type'}"/>
+                    <filter string="State" name="group_state" context="{'group_by':'state'}"/>
+                    <filter string="Account" name="group_account" context="{'group_by':'account_id'}"/>
+                </group>
+            </search>
+        </field>
+    </record>
+
+    <!-- Transaction Dashboard View -->
+    <record id="view_transaction_dashboard" model="ir.ui.view">
+        <field name="name">core_banking.transaction.dashboard</field>
+        <field name="model">core_banking.transaction</field>
+        <field name="arch" type="xml">
+            <dashboard>
+                <view type="search" ref="view_transaction_search"/>
+                <group>
+                    <group>
+                        <div class="o_kanban_view o_kanban_dashboard o_salesteam_kanban">
+                            <t t-foreach="['draft', 'posted', 'reconciled', 'reversed', 'cancelled']" t-as="state">
+                                <div class="oe_kanban_global_click o_kanban_group" t-att-data-id="state">
+                                    <div class="o_kanban_header">
+                                        <span class="o_kanban_header_title">
+                                            <t t-esc="state"/>
+                                        </span>
+                                        <div class="o_kanban_counter">
+                                            <div class="o_kanban_counter_side">
+                                                <span class="o_kanban_counter_number" t-esc="search_count([('state', '=', state)])"/>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </t>
+                        </div>
+                    </group>
+                </group>
+                <group>
+                    <group>
+                        <div class="o_kanban_view o_kanban_dashboard o_salesteam_kanban">
+                            <t t-foreach="['deposit', 'withdrawal', 'transfer', 'fee', 'interest']" t-as="t_type">
+                                <div class="oe_kanban_global_click o_kanban_group" t-att-data-id="t_type">
+                                    <div class="o_kanban_header">
+                                        <span class="o_kanban_header_title">
+                                            <t t-esc="t_type"/>
+                                        </span>
+                                        <div class="o_kanban_counter">
+                                            <div class="o_kanban_counter_side">
+                                                <span class="o_kanban_counter_number">
+                                                    <t t-esc="search_count([('transaction_type', '=', t_type)])"/>
+                                                </span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </t>
+                        </div>
+                    </group>
+                </group>
+            </dashboard>
+        </field>
+    </record>
+
+    <!-- Transaction Action -->
+    <record id="action_transaction" model="ir.actions.act_window">
+        <field name="name">Transactions</field>
+        <field name="res_model">core_banking.transaction</field>
+        <field name="view_mode">dashboard,tree,form,kanban,activity</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                Create your first transaction
+            </p>
+        </field>
+    </record>
+
+    <!-- Transaction Menu -->
+    <menuitem id="menu_transaction_root" name="Transactions" sequence="30"/>
+    <menuitem id="menu_transaction" name="Transactions" parent="menu_transaction_root" action="action_transaction" sequence="10"/>
+
+    <!-- Transaction Reconciliation Views -->
+    <record id="view_transaction_reconciliation_tree" model="ir.ui.view">
+        <field name="name">core_banking.transaction.reconciliation.tree</field>
+        <field name="model">core_banking.transaction.reconciliation</field>
+        <field name="arch" type="xml">
+            <tree string="Reconciliations">
+                <field name="name"/>
+                <field name="reconciliation_date"/>
+                <field name="reconciled_by"/>
+                <field name="transaction_ids" widget="many2many_tags"/>
+            </tree>
+        </field>
+    </record>
+
+    <record id="view_transaction_reconciliation_form" model="ir.ui.view">
+        <field name="name">core_banking.transaction.reconciliation.form</field>
+        <field name="model">core_banking.transaction.reconciliation</field>
+        <field name="arch" type="xml">
+            <form string="Transaction Reconciliation">
+                <sheet>
+                    <div class="oe_title">
+                        <h1>
+                            <field name="name" placeholder="Reconciliation Reference"/>
+                        </h1>
+                    </div>
+                    <group>
+                        <group>
+                            <field name="reconciliation_date" required="1"/>
+                            <field name="reconciled_by" required="1"/>
+                        </group>
+                        <group>
+                            <field name="transaction_ids" domain="[('state', '=', 'posted')]" context="{'default_state': 'posted'}">
+                                <tree>
+                                    <field name="transaction_date"/>
+                                    <field name="transaction_type"/>
+                                    <field name="account_id"/>
+                                    <field name="amount" widget="monetary" options="{'currency_field': 'currency_id'}"/>
+                                    <field name="reference"/>
+                                </tree>
+                            </field>
+                        </group>
+                    </group>
+                    <div class="oe_button_box" name="button_box">
+                        <button name="action_reconcile" string="Reconcile" type="object" class="oe_stat_button">
+                            <field name="transaction_ids" widget="statinfo" string="Reconcile"/>
+                        </button>
+                    </div>
+                    <field name="notes" placeholder="Add any notes about this reconciliation..."/>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <record id="action_transaction_reconciliation" model="ir.actions.act_window">
+        <field name="name">Reconciliations</field>
+        <field name="res_model">core_banking.transaction.reconciliation</field>
+        <field name="view_mode">tree,form</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                Create your first reconciliation
+            </p>
+        </field>
+    </record>
+
+    <menuitem id="menu_transaction_reconciliation" name="Reconciliations" parent="menu_transaction_root" action="action_transaction_reconciliation" sequence="20"/>
+</odoo>

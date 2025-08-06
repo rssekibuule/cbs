@@ -1,0 +1,261 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Branch Views -->
+    <record id="view_branch_tree" model="ir.ui.view">
+        <field name="name">core_banking.branch.tree</field>
+        <field name="model">core_banking.branch</field>
+        <field name="arch" type="xml">
+            <tree string="Branches">
+                <field name="name"/>
+                <field name="code"/>
+                <field name="manager_id"/>
+                <field name="phone"/>
+                <field name="email"/>
+                <field name="active"/>
+            </tree>
+        </field>
+    </record>
+
+    <record id="view_branch_form" model="ir.ui.view">
+        <field name="name">core_banking.branch.form</field>
+        <field name="model">core_banking.branch</field>
+        <field name="arch" type="xml">
+            <form string="Branch">
+                <sheet>
+                    <div class="oe_title">
+                        <h1>
+                            <field name="name"/>
+                        </h1>
+                        <h2>
+                            <field name="code" class="text-muted"/>
+                        </h2>
+                    </div>
+                    <group>
+                        <group>
+                            <field name="manager_id" options="{'no_open': True}"/>
+                            <field name="parent_id" options="{'no_open': True}"/>
+                            <field name="company_id" options="{'no_open': True}"/>
+                            <field name="active"/>
+                        </group>
+                        <group>
+                            <field name="phone"/>
+                            <field name="email"/>
+                            <field name="website"/>
+                        </group>
+                    </group>
+                    <notebook>
+                        <page string="Address">
+                            <field name="street"/>
+                            <field name="street2"/>
+                            <field name="city"/>
+                            <field name="state_id"/>
+                            <field name="zip"/>
+                            <field name="country_id"/>
+                        </page>
+                        <page string="Working Hours">
+                            <field name="working_hours">
+                                <tree>
+                                    <field name="dayofweek" widget="selection"/>
+                                    <field name="hour_from"/>
+                                    <field name="hour_to"/>
+                                </tree>
+                            </field>
+                        </page>
+                        <page string="Additional Info">
+                            <field name="note" placeholder="Add any additional information about this branch..."/>
+                        </page>
+                    </notebook>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <!-- Account Type Views -->
+    <record id="view_account_type_tree" model="ir.ui.view">
+        <field name="name">core_banking.account.type.tree</field>
+        <field name="model">core_banking.account.type</field>
+        <field name="arch" type="xml">
+            <tree string="Account Types">
+                <field name="name"/>
+                <field name="code"/>
+                <field name="type"/>
+                <field name="allow_negative_balance"/>
+                <field name="active"/>
+            </tree>
+        </field>
+    </record>
+
+    <record id="view_account_type_form" model="ir.ui.view">
+        <field name="name">core_banking.account.type.form</field>
+        <field name="model">core_banking.account.type</field>
+        <field name="arch" type="xml">
+            <form string="Account Type">
+                <sheet>
+                    <div class="oe_title">
+                        <h1>
+                            <field name="name"/>
+                        </h1>
+                        <h2>
+                            <field name="code" class="text-muted"/>
+                        </h2>
+                    </div>
+                    <group>
+                        <group>
+                            <field name="type"/>
+                            <field name="currency_id" options="{'no_open': True}"/>
+                            <field name="min_balance" widget="monetary" options="{'currency_field': 'currency_id'}"/>
+                            <field name="interest_rate" attrs="{'invisible': [('type', 'not in', ['savings', 'fixed_deposit'])]}"/>
+                        </group>
+                        <group>
+                            <field name="allow_negative_balance"/>
+                            <field name="allow_transfers"/>
+                            <field name="allow_withdrawals"/>
+                            <field name="allow_deposits"/>
+                            <field name="active"/>
+                        </group>
+                    </group>
+                    <notebook>
+                        <page string="Fees">
+                            <field name="fee_ids">
+                                <tree>
+                                    <field name="name"/>
+                                    <field name="fee_type"/>
+                                    <field name="amount" widget="monetary" options="{'currency_field': 'currency_id'}"/>
+                                    <field name="tax_id" options="{'no_open': True}"/>
+                                </tree>
+                            </field>
+                        </page>
+                        <page string="Accounting">
+                            <group>
+                                <group>
+                                    <field name="account_asset_id" string="Asset Account" options="{'no_open': True}"/>
+                                    <field name="account_income_id" string="Income Account" options="{'no_open': True}"/>
+                                    <field name="account_expense_id" string="Expense Account" options="{'no_open': True}"/>
+                                </group>
+                                <group>
+                                    <field name="journal_id" options="{'no_open': True}"/>
+                                    <field name="analytic_account_id" options="{'no_open': True}"/>
+                                </group>
+                            </group>
+                        </page>
+                        <page string="Restrictions">
+                            <group>
+                                <group>
+                                    <field name="min_opening_balance" widget="monetary" options="{'currency_field': 'currency_id'}"/>
+                                    <field name="max_balance" widget="monetary" options="{'currency_field': 'currency_id'}"/>
+                                    <field name="min_withdrawal" widget="monetary" options="{'currency_field': 'currency_id'}"/>
+                                    <field name="max_withdrawal" widget="monetary" options="{'currency_field': 'currency_id'}"/>
+                                </group>
+                                <group>
+                                    <field name="withdrawal_frequency" string="Withdrawals Allowed"/>
+                                    <field name="withdrawal_limit_count" string="Max Withdrawals" attrs="{'invisible': [('withdrawal_frequency', '=', 'unlimited')]}"/>
+                                    <field name="withdrawal_limit_amount" string="Max Withdrawal Amount" widget="monetary" options="{'currency_field': 'currency_id'}" attrs="{'invisible': [('withdrawal_frequency', '=', 'unlimited')]}"/>
+                                </group>
+                            </group>
+                        </page>
+                    </notebook>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <!-- Customer Segment Views -->
+    <record id="view_customer_segment_tree" model="ir.ui.view">
+        <field name="name">core_banking.customer.segment.tree</field>
+        <field name="model">core_banking.customer.segment</field>
+        <field name="arch" type="xml">
+            <tree string="Customer Segments">
+                <field name="name"/>
+                <field name="code"/>
+                <field name="customer_count" widget="statinfo" string="Customers"/>
+                <field name="active"/>
+            </tree>
+        </field>
+    </record>
+
+    <record id="view_customer_segment_form" model="ir.ui.view">
+        <field name="name">core_banking.customer.segment.form</field>
+        <field name="model">core_banking.customer.segment</field>
+        <field name="arch" type="xml">
+            <form string="Customer Segment">
+                <sheet>
+                    <div class="oe_title">
+                        <h1>
+                            <field name="name"/>
+                        </h1>
+                        <h2>
+                            <field name="code" class="text-muted"/>
+                        </h2>
+                    </div>
+                    <group>
+                        <group>
+                            <field name="segment_type"/>
+                            <field name="min_income" widget="monetary" options="{'currency_field': 'currency_id'}"/>
+                            <field name="max_income" widget="monetary" options="{'currency_field': 'currency_id'}"/>
+                        </group>
+                        <group>
+                            <field name="min_age"/>
+                            <field name="max_age"/>
+                            <field name="active"/>
+                        </group>
+                    </group>
+                    <notebook>
+                        <page string="Products">
+                            <field name="product_ids" widget="many2many_tags"/>
+                        </page>
+                        <page string="Pricing">
+                            <field name="pricing_ids">
+                                <tree>
+                                    <field name="product_id" options="{'no_open': True}"/>
+                                    <field name="fee_type"/>
+                                    <field name="amount" widget="monetary" options="{'currency_field': 'currency_id'}"/>
+                                    <field name="is_percentage"/>
+                                </tree>
+                            </field>
+                        </page>
+                        <page string="Customers">
+                            <field name="customer_count" string="Total Customers" readonly="1"/>
+                            <field name="customer_ids" readonly="1">
+                                <tree>
+                                    <field name="name"/>
+                                    <field name="email"/>
+                                    <field name="phone"/>
+                                    <field name="customer_since"/>
+                                </tree>
+                            </field>
+                        </page>
+                        <page string="Marketing">
+                            <field name="campaign_ids" widget="many2many_tags"/>
+                            <field name="marketing_notes" placeholder="Add any marketing notes for this segment..."/>
+                        </page>
+                    </notebook>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <!-- Supporting Menu Items -->
+    <menuitem id="menu_configuration" name="Configuration" sequence="100"/>
+    
+    <menuitem id="menu_branch" name="Branches" parent="menu_configuration" action="action_branch" sequence="10"/>
+    <menuitem id="menu_account_type" name="Account Types" parent="menu_configuration" action="action_account_type" sequence="20"/>
+    <menuitem id="menu_customer_segment" name="Customer Segments" parent="menu_configuration" action="action_customer_segment" sequence="30"/>
+    
+    <record id="action_branch" model="ir.actions.act_window">
+        <field name="name">Branches</field>
+        <field name="res_model">core_banking.branch</field>
+        <field name="view_mode">tree,form</field>
+    </record>
+
+    <record id="action_account_type" model="ir.actions.act_window">
+        <field name="name">Account Types</field>
+        <field name="res_model">core_banking.account.type</field>
+        <field name="view_mode">tree,form</field>
+    </record>
+
+    <record id="action_customer_segment" model="ir.actions.act_window">
+        <field name="name">Customer Segments</field>
+        <field name="res_model">core_banking.customer.segment</field>
+        <field name="view_mode">tree,form</field>
+    </record>
+</odoo>

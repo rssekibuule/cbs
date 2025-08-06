@@ -1,0 +1,181 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Customer Tree View -->
+    <record id="view_customer_tree" model="ir.ui.view">
+        <field name="name">core_banking.customer.tree</field>
+        <field name="model">x_core_banking.customer</field>
+        <field name="arch" type="xml">
+            <tree string="Customers" decoration-success="state == 'active'" decoration-danger="state in ('suspended', 'closed')">
+                <field name="ref" string="ID"/>
+                <field name="name"/>
+                <field name="customer_type" widget="badge"/>
+                <field name="email"/>
+                <field name="mobile"/>
+                <field name="total_balance" widget="monetary" options="{'currency_field': 'currency_id'}"/>
+                <field name="state" widget="statusbar"/>
+            </tree>
+        </field>
+    </record>
+
+    <!-- Customer Form View -->
+    <record id="view_customer_form" model="ir.ui.view">
+        <field name="name">core_banking.customer.form</field>
+        <field name="model">x_core_banking.customer</field>
+        <field name="arch" type="xml">
+            <form string="Customer">
+                <header>
+                    <field name="state" widget="statusbar" statusbar_visible="draft,verified,active,suspended,closed"/>
+                </header>
+                <sheet>
+                    <div class="oe_button_box" name="button_box">
+                        <button name="action_verify" string="Verify" type="object" class="oe_stat_button" attrs="{'invisible': [('state', '!=', 'draft')]}">
+                            <field name="state" widget="statinfo" string="Verify"/>
+                        </button>
+                        <button name="action_activate" string="Activate" type="object" class="oe_stat_button" attrs="{'invisible': [('state', 'not in', ['verified', 'suspended'])]}">
+                            <field name="state" widget="statinfo" string="Activate"/>
+                        </button>
+                        <button name="action_suspend" string="Suspend" type="object" class="oe_stat_button" attrs="{'invisible': [('state', '!=', 'active')]}">
+                            <field name="state" widget="statinfo" string="Suspend"/>
+                        </button>
+                        <button name="action_close" string="Close" type="object" class="oe_stat_button" attrs="{'invisible': [('state', '==', 'closed')]}">
+                            <field name="state" widget="statinfo" string="Close"/>
+                        </button>
+                    </div>
+                    <div class="oe_title">
+                        <h1>
+                            <field name="name" placeholder="Customer Name"/>
+                        </h1>
+                        <h2>
+                            <field name="ref" string="Customer ID" class="text-muted"/>
+                        </h2>
+                    </div>
+                    <group>
+                        <group>
+                            <field name="customer_type"/>
+                            <field name="date_of_birth"/>
+                            <field name="gender"/>
+                            <field name="nationality"/>
+                        </group>
+                        <group>
+                            <field name="email"/>
+                            <field name="phone"/>
+                            <field name="mobile"/>
+                            <field name="is_pep" string="Politically Exposed"/>
+                            <field name="is_high_risk"/>
+                        </group>
+                    </group>
+                    <notebook>
+                        <page string="Address">
+                            <group>
+                                <field name="street"/>
+                                <field name="street2"/>
+                                <field name="city"/>
+                                <field name="state_id"/>
+                                <field name="zip"/>
+                                <field name="country_id"/>
+                            </group>
+                        </page>
+                        <page string="Identification">
+                            <group>
+                                <field name="id_type"/>
+                                <field name="id_number"/>
+                                <field name="id_issue_date"/>
+                                <field name="id_expiry_date"/>
+                            </group>
+                        </page>
+                        <page string="Documents">
+                            <field name="document_ids" mode="kanban">
+                                <tree>
+                                    <field name="name"/>
+                                    <field name="document_type"/>
+                                    <field name="date_uploaded"/>
+                                    <field name="is_verified"/>
+                                </tree>
+                                <kanban>
+                                    <field name="name"/>
+                                    <templates>
+                                        <t t-name="kanban-box">
+                                            <div class="oe_kanban_global_click">
+                                                <div class="oe_kanban_content">
+                                                    <div class="o_kanban_card_header">
+                                                        <strong><field name="name"/></strong>
+                                                    </div>
+                                                    <div class="o_kanban_card_content">
+                                                        <div><field name="document_type"/></div>
+                                                        <div><field name="date_uploaded"/></div>
+                                                        <div t-if="record.is_verified.raw_value" class="text-success">
+                                                            <i class="fa fa-check"/> Verified
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </t>
+                                    </templates>
+                                </kanban>
+                            </field>
+                        </page>
+                        <page string="Accounts">
+                            <field name="account_ids">
+                                <tree>
+                                    <field name="name"/>
+                                    <field name="account_number"/>
+                                    <field name="account_type_id"/>
+                                    <field name="balance" widget="monetary" options="{'currency_field': 'currency_id'}"/>
+                                    <field name="state" widget="statusbar"/>
+                                </tree>
+                            </field>
+                        </page>
+                        <page string="Loans">
+                            <field name="loan_ids">
+                                <tree>
+                                    <field name="name"/>
+                                    <field name="amount" widget="monetary" options="{'currency_field': 'currency_id'}"/>
+                                    <field name="term"/>
+                                    <field name="state" widget="statusbar"/>
+                                </tree>
+                            </field>
+                        </page>
+                    </notebook>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <!-- Customer Search View -->
+    <record id="view_customer_search" model="ir.ui.view">
+        <field name="name">core_banking.customer.search</field>
+        <field name="model">x_core_banking.customer</field>
+        <field name="arch" type="xml">
+            <search string="Customer">
+                <field name="name" filter_domain="['|', ('name', 'ilike', self), ('ref', 'ilike', self)]"/>
+                <field name="ref" string="Customer ID"/>
+                <field name="email"/>
+                <field name="mobile"/>
+                <filter string="Active" name="active" domain="[('state', '=', 'active')]"/>
+                <filter string="Draft" name="draft" domain="[('state', '=', 'draft')]"/>
+                <filter string="Suspended" name="suspended" domain="[('state', '=', 'suspended')]"/>
+                <filter string="High Risk" name="high_risk" domain="[('is_high_risk', '=', True)]"/>
+                <group expand="0" string="Group By">
+                    <filter string="Customer Type" name="group_customer_type" context="{'group_by':'customer_type'}"/>
+                    <filter string="State" name="group_state" context="{'group_by':'state'}"/>
+                </group>
+            </search>
+        </field>
+    </record>
+
+    <!-- Customer Action -->
+    <record id="action_customer" model="ir.actions.act_window">
+        <field name="name">Customers</field>
+        <field name="res_model">core_banking.customer</field>
+        <field name="view_mode">tree,form,kanban,activity</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                Create your first customer
+            </p>
+        </field>
+    </record>
+
+    <!-- Customer Menu -->
+    <menuitem id="menu_customer_root" name="Customers" sequence="10"/>
+    <menuitem id="menu_customer" name="Customers" parent="menu_customer_root" action="action_customer" sequence="10"/>
+</odoo>
